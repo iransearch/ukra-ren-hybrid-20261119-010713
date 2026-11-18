@@ -1,0 +1,14 @@
+# Official multi-platform Nginx stable image, verified from Docker Registry.
+FROM nginx:1.28.3-alpine@sha256:a8b39bd9cf0f83869a2162827a0caf6137ddf759d50a171451b335cecc87d236
+USER root
+RUN apk add --no-cache python3 ca-certificates \
+    && addgroup -g 10001 ren \
+    && adduser -D -H -u 10001 -G ren ren
+WORKDIR /app
+COPY --chown=ren:ren main.py nginx_gateway.py cloudflare_origin_ca_roots.pem ./
+USER ren
+ENV PYTHONUNBUFFERED=1 PROXY_ENGINE=nginx PORT=10000 MAX_CONCURRENT=0
+EXPOSE 10000
+STOPSIGNAL SIGTERM
+ENTRYPOINT ["python3", "/app/nginx_gateway.py"]
+CMD []

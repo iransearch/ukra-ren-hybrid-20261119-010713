@@ -1,0 +1,12 @@
+# Official multi-platform Node 24 Alpine image, verified from Docker Registry.
+FROM node:24-alpine@sha256:116b800c3754b440ee0aa3ed2f20f5bf3d99a554bfd9adeea09ea8017f6e85f5
+USER root
+RUN apk add --no-cache python3 ca-certificates
+WORKDIR /app
+COPY --chown=node:node main.py node_gateway.py node_runtime.mjs node_cluster.mjs cloudflare_origin_ca_roots.pem ./
+USER node
+ENV PYTHONUNBUFFERED=1 PROXY_ENGINE=node PORT=10000 MAX_CONCURRENT=0
+EXPOSE 10000
+STOPSIGNAL SIGTERM
+ENTRYPOINT ["python3", "/app/node_gateway.py"]
+CMD []
